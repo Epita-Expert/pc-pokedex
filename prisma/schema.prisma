@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trainers {
+  id            Int        @id @default(autoincrement())
+  name          String
+  login         String     @unique
+  password      String
+  birth         DateTime
+  roles         Role[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+  pokemons      Pokemons[]
+  sentTrades    Trades[]   @relation("sentTrades")
+  receiveTrades Trades[]   @relation("receiveTrades")
+}
+
+model Pokemons {
+  id        Int                @id @default(autoincrement())
+  species   String
+  name      String?
+  type      String
+  level     Int
+  weight    Float
+  height    Float
+  chromatic Boolean
+  trainerId Int
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  deletedAt DateTime?
+  tradesId  Int?
+  sex       Sex
+  trainer   Trainers           @relation(fields: [trainerId], references: [id])
+  Trades    TradesOnPokemons[]
+}
+
+model Trades {
+  id          Int                @id @default(autoincrement())
+  status      TradeStatus
+  recipientId Int?
+  authorId    Int?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+  author      Trainers?          @relation("sentTrades", fields: [authorId], references: [id])
+  recipient   Trainers?          @relation("receiveTrades", fields: [recipientId], references: [id])
+  pokemons    TradesOnPokemons[]
+}
+
+model TradesOnPokemons {
+  tradeId   Int
+  pokemonId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  pokemon   Pokemons  @relation(fields: [pokemonId], references: [id])
+  trade     Trades    @relation(fields: [tradeId], references: [id])
+
+  @@id([tradeId, pokemonId])
+}
+
+model Logs {
+  id        Int       @id @default(autoincrement())
+  message   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  UNDEFINED
+}
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
