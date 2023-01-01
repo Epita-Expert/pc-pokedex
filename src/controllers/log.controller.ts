@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import fs from 'fs'
+import { ErrorCode } from '../constant'
 import HttpException from '../exceptions/http.exception'
 import { ErrorMiddleWare } from '../middlewares/error.middleware'
 import LogService from '../services/log.service'
@@ -14,7 +15,7 @@ export default class LogController {
 
 		try {
 			if (!format || !['csv'].includes(format)) {
-				throw new HttpException(400, 'Invalid format')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 			const logs = await LogService.getLogs()
 			const headers = 'id,message,createdDate,createdTime\n'
@@ -25,9 +26,6 @@ export default class LogController {
 			fs.writeFileSync('./logs.csv', headers + csv.join(''))
 			res.setHeader('content-type', 'text/csv')
 			fs.createReadStream('./logs.csv').pipe(res)
-
-			// res.sendFile('./logs.csv', { root: __dirname })
-			return 'ok'
 		} catch (e) {
 			next(e as HttpException)
 		}

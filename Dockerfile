@@ -7,16 +7,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY yarn.lock ./
 
+RUN yarn install
+
 # generated prisma files
 COPY prisma ./prisma/
 
-RUN yarn install
-
-# Bundle app source
-# RUN yarn build
+RUN yarn prisma generate
 
 COPY dist/ .
 
 EXPOSE 3001
-CMD [ "node", "index.js" ]
-
+CMD [ "node", "src/index.js" ]

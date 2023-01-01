@@ -17,7 +17,7 @@ router.post('/', TradeController.createTrade)
  * @query {TradeStatus} status
  * @return {Trade}
  */
-router.put('/:id', TradeController.updateTradeById)
+router.put('/:id/:status', TradeController.updateTradeById)
 
 /*
  * GET /trade/:id

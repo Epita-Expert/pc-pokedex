@@ -7,7 +7,7 @@ app.listen(port || 3001, async () => {
 		console.log(
 			`[Server]: ⚡️Server is running at http://localhost:${port || 3001}`
 		)
-		await prisma.$disconnect()
+		await prisma.$connect()
 	} catch (e) {
 		console.error(e)
 		await prisma.$disconnect()

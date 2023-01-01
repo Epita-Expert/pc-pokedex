@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.ts --exec ts-node",
     "debug": "nodemon --exec 'node --inspect=0.0.0.0:9229 --require ts-node/register src/index.ts'",
-    "prod": "node dist/index.js",
+    "build": "tsc",
+    "prod": "yarn build && node dist/src/index.js",
     "test": "jest -i",
     "test:cov": "jest --coverage",
     "lint": "eslint --ext .ts src",
@@ -67,6 +68,8 @@
     "testEnvironment": "node",
     "setupFilesAfterEnv": [
       "<rootDir>/src/client/prisma.singleton.ts"
-    ]
+    ],
+    "modulePathIgnorePatterns": ["<rootDir>/dist/"]
+
   }
 }

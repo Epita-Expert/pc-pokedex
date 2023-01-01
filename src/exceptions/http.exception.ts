@@ -1,7 +1,9 @@
+import { ErrorCode } from '../constant'
+
 class HttpException extends Error {
 	status: number
-	message: string
-	constructor(status: number, message: string) {
+	message: ErrorCode
+	constructor(status: number, message: ErrorCode) {
 		super(message)
 		this.status = status
 		this.message = message

@@ -1,6 +1,8 @@
 import { Trainer } from '@prisma/client'
 import prisma from '../client/prisma.client'
+import { ErrorCode } from '../constant'
 import { CreateTrainerDto, UpdateTrainerDto } from '../dto/trainer.dto'
+import HttpException from '../exceptions/http.exception'
 
 export default class TrainerService {
 	public static async getTrainers(): Promise<Trainer[]> {
@@ -8,12 +10,18 @@ export default class TrainerService {
 	}
 
 	public static async getTrainerById(id: number): Promise<Trainer | null> {
-		return await prisma.trainer.findUnique({
+		const trainer = await prisma.trainer.findUnique({
 			where: { id },
 		})
+		if (!trainer) {
+			throw new HttpException(404, ErrorCode.TRAINER_NOT_FOUND)
+		}
+		return trainer
 	}
 
-	public static async createTrainer(trainer: CreateTrainerDto): Promise<Trainer> {
+	public static async createTrainer(
+		trainer: CreateTrainerDto
+	): Promise<Trainer> {
 		return await prisma.trainer.create({
 			data: trainer,
 		})
@@ -30,8 +38,12 @@ export default class TrainerService {
 	}
 
 	public static async deleteTrainer(id: number): Promise<Trainer> {
-		return await prisma.trainer.delete({
+		const trainer = await prisma.trainer.delete({
 			where: { id },
 		})
+		if (!trainer) {
+			throw new HttpException(404, ErrorCode.TRAINER_NOT_FOUND)
+		}
+		return trainer
 	}
 }

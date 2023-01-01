@@ -3,6 +3,8 @@ import TrainerService from '../services/trainer.service'
 import bcrypt from 'bcrypt'
 import { ErrorMiddleWare } from '../middlewares/error.middleware'
 import HttpException from '../exceptions/http.exception'
+import { UpdateTrainerDto } from '../dto/trainer.dto'
+import { ErrorCode } from '../constant'
 
 export default class TrainerController {
 	public static async updateTrainerById(
@@ -11,20 +13,23 @@ export default class TrainerController {
 		next: ErrorMiddleWare
 	) {
 		const trainerId = parseInt(req.params.id)
+		const { name, password, birth, login, roles } = req.body as UpdateTrainerDto
 
 		try {
 			if (isNaN(trainerId)) {
-				throw new HttpException(400, 'Invalid trainer id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 
 			if (req.body.password) {
 				req.body.password = bcrypt.hashSync(req.body.password, 10)
 			}
-			const trainer = await TrainerService.updateTrainer(trainerId, req.body)
-
-			if (!trainer) {
-				throw new HttpException(404, 'Trainer not found')
-			}
+			const trainer = await TrainerService.updateTrainer(trainerId, {
+				name,
+				password,
+				birth,
+				login,
+				roles,
+			})
 
 			return res.status(200).send(trainer)
 		} catch (e) {
@@ -75,12 +80,9 @@ export default class TrainerController {
 
 		try {
 			if (isNaN(trainerId)) {
-				throw new HttpException(400, 'Invalid trainer id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 			const trainer = await TrainerService.deleteTrainer(trainerId)
-			if (!trainer) {
-				throw new HttpException(404, 'Trainer not found')
-			}
 			return res.status(200).send(trainer)
 		} catch (e) {
 			next(e as HttpException)
@@ -109,14 +111,10 @@ export default class TrainerController {
 
 		try {
 			if (isNaN(trainerId)) {
-				throw new HttpException(400, 'Invalid trainer id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 
 			const trainer = await TrainerService.getTrainerById(trainerId)
-
-			if (!trainer) {
-				throw new HttpException(404, 'Trainer not found')
-			}
 			return res.status(200).send(trainer)
 		} catch (e) {
 			next(e as HttpException)

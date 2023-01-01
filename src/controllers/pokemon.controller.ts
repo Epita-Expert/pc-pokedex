@@ -1,10 +1,11 @@
 import { Pokemon } from '@prisma/client'
 import { Request, Response } from 'express'
-import prisma from '../client/prisma.client'
 import { PaginatedDto } from '../dto/paginated.dto'
 import { UpdatePokemonDto } from '../dto/pokemon.dto'
 import { ErrorMiddleWare } from '../middlewares/error.middleware'
 import HttpException from '../exceptions/http.exception'
+import PokemonService from '../services/pokemon.service'
+import { ErrorCode } from '../constant'
 
 export default class PokemonController {
 	public static async updateMyPokemon(
@@ -18,25 +19,22 @@ export default class PokemonController {
 
 		try {
 			if (isNaN(pokemonId)) {
-				throw new HttpException(400, 'Invalid pokemon id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 
-			const pokemons = await prisma.pokemon.findMany({ where: { trainerId } })
+			const pokemons = await PokemonService.getPokemonsByTrainerId(trainerId)
 			let pokemon = pokemons.find(
 				(pokemon: Pokemon) => pokemon.id === pokemonId
 			)
 			if (!pokemon) {
-				throw new HttpException(404, 'Pokemon not found')
+				throw new HttpException(404, ErrorCode.POKEMON_NOT_FOUND)
 			}
 
-			pokemon = await prisma.pokemon.update({
-				where: { id: pokemonId },
-				data: {
-					name,
-					level,
-					height,
-					weight,
-				},
+			pokemon = await PokemonService.updatePokemon(pokemonId, {
+				name,
+				level,
+				height,
+				weight,
 			})
 
 			return res.status(200).send(pokemon)
@@ -55,16 +53,14 @@ export default class PokemonController {
 
 		try {
 			if (isNaN(pokemonId)) {
-				throw new HttpException(400, 'Invalid pokemon id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
-			const pokemon = await prisma.pokemon.update({
-				where: { id: pokemonId },
-				data: {
-					name,
-					level,
-					height,
-					weight,
-				},
+
+			const pokemon = await PokemonService.updatePokemon(pokemonId, {
+				name,
+				level,
+				height,
+				weight,
 			})
 
 			return res.status(200).send(pokemon)
@@ -78,8 +74,14 @@ export default class PokemonController {
 		res: Response,
 		next: ErrorMiddleWare
 	) {
+		const limit = parseInt(req.query.limit as string)
+		const page = parseInt(req.query.page as string)
 		try {
-			const pokemons = await prisma.pokemon.findMany()
+			if (isNaN(limit) || isNaN(page)) {
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
+			}
+
+			const pokemons = await PokemonService.getPaginatedPokemons(limit, page)
 			const pokemonDto = new PaginatedDto<Pokemon>(pokemons, pokemons.length)
 			return res.status(200).send(pokemonDto)
 		} catch (e) {

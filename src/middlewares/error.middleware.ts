@@ -7,6 +7,7 @@ export const errorMiddleware = (
 	err: HttpException | Error,
 	req: Request,
 	res: Response,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	next: NextFunction
 ) => {
 	if (err instanceof HttpException && err.status) {

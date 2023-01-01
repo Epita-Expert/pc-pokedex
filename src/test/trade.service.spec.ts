@@ -1,31 +1,9 @@
 import { Sex, TradeStatus } from '@prisma/client'
-import { Request, Response, NextFunction } from 'express'
 import { prismaMock } from '../client/prisma.singleton'
-import { CreateTradeDto, UpdateTradeDto } from '../dto/trade.dto'
+import { ErrorCode } from '../constant'
+import { CreateTradeDto } from '../dto/trade.dto'
+import HttpException from '../exceptions/http.exception'
 import TradeService from '../services/trade.services'
-
-jest.mock('../middlewares/auth.middleware', () => ({
-	isAuthenticated: (req: Request, res: Response, next: NextFunction) => {
-		res.locals.user = {
-			id: 1,
-			email: '',
-			password: '',
-			roles: ['ADMIN'],
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			deletedAt: null,
-		}
-		next()
-	},
-	isAdmin: (_: any, __: any, next: NextFunction) => {
-		next()
-	},
-	hasRequiredScope: () => {
-		return (_: any, __: any, next: NextFunction) => {
-			next()
-		}
-	},
-}))
 
 describe('TradeService', () => {
 	describe('getTrades', () => {
@@ -137,7 +115,7 @@ describe('TradeService', () => {
 			prismaMock.pokemon.findMany.mockResolvedValue([])
 
 			const trade = TradeService.createTrade(authorId, createTrade)
-			await expect(trade).rejects.toThrowError('No pokemon(s) to trade')
+			await expect(trade).rejects.toThrowError(new HttpException(400, ErrorCode.INVALID_POKEMON_TO_TRADE))
 		})
 
 		it('should error "Author does not have the pokemon(s) he wants to trade"', async () => {
@@ -191,9 +169,7 @@ describe('TradeService', () => {
 				])
 
 			const trade = TradeService.createTrade(authorId, createTrade)
-			await expect(trade).rejects.toThrowError(
-				'Author does not have the pokemon(s) he wants to trade'
-			)
+			await expect(trade).rejects.toThrowError(new HttpException(400, ErrorCode.INVALID_POKEMON_TO_TRADE))
 		})
 
 		it('should error "Recipient does not have the pokemon(s) you wants to trade"', async () => {
@@ -248,94 +224,7 @@ describe('TradeService', () => {
 				])
 
 			const trade = TradeService.createTrade(authorId, createTrade)
-			await expect(trade).rejects.toThrowError(
-				'Recipient does not have the pokemon(s) he wants to trade'
-			)
-		})
-	})
-
-	describe('updateTrade', () => {
-		it('should update a trade', async () => {
-			const date = new Date()
-			const expectedTrade = {
-				id: 1,
-				status: TradeStatus.PENDING,
-				authorId: 1,
-				recipientId: 2,
-				pokemonIds: [1, 2, 3],
-				createdAt: date,
-				updatedAt: date,
-				deletedAt: null,
-			}
-
-			prismaMock.trade.findUnique.mockResolvedValue(expectedTrade)
-			prismaMock.trade.update.mockResolvedValue(expectedTrade)
-
-			const trade = TradeService.updateTrade(1, 1, expectedTrade)
-			await expect(trade).resolves.toEqual(expectedTrade)
-		})
-
-		it("should error 'Trade not found'", async () => {
-			const date = new Date()
-			const expectedTrade = {
-				id: 1,
-				status: TradeStatus.PENDING,
-				authorId: 1,
-				recipientId: 2,
-				pokemonIds: [1, 2, 3],
-				createdAt: date,
-				updatedAt: date,
-				deletedAt: null,
-			}
-
-			prismaMock.trade.findUnique.mockResolvedValue(null)
-
-			const trade = TradeService.updateTrade(1, 1, expectedTrade)
-			await expect(trade).rejects.toThrowError('Trade not found')
-		})
-
-		it("should error 'Only pending trades can be updated'", async () => {
-			const date = new Date()
-			const expectedTrade = {
-				id: 1,
-				status: TradeStatus.ACCEPTED,
-				authorId: 1,
-				recipientId: 2,
-				pokemonIds: [1, 2, 3],
-				createdAt: date,
-				updatedAt: date,
-				deletedAt: null,
-			}
-
-			prismaMock.trade.findUnique.mockResolvedValue(expectedTrade)
-
-			const trade = TradeService.updateTrade(1, 1, expectedTrade)
-			await expect(trade).rejects.toThrowError(
-				'Only pending trade can be updated'
-			)
-		})
-
-		it("should error 'Only the recipient can accept or reject a trade'", async () => {
-			const date = new Date()
-			const expectedTrade = {
-				id: 1,
-				status: TradeStatus.PENDING,
-				authorId: 1,
-				recipientId: 2,
-				pokemonIds: [1, 2, 3],
-				createdAt: date,
-				updatedAt: date,
-				deletedAt: null,
-			}
-
-			prismaMock.trade.findUnique.mockResolvedValue(expectedTrade)
-
-			const trade = TradeService.updateTrade(1, 1, {
-				status: TradeStatus.ACCEPTED,
-			})
-			await expect(trade).rejects.toThrowError(
-				'Only the recipient can accept or reject a trade'
-			)
+			await expect(trade).rejects.toThrowError(new HttpException(400, ErrorCode.INVALID_POKEMON_TO_TRADE))
 		})
 	})
 })

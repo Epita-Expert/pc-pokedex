@@ -13,8 +13,8 @@ export class CreatePokemonDto {
 }
 
 export class UpdatePokemonDto {
-	name: string | null
-	level: number
-	weight: number
-	height: number
+	name?: string
+	level?: number
+	weight?: number
+	height?: number
 }

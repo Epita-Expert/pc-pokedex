@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken'
 import prisma from '../client/prisma.client'
 import { CreateTrainerDto } from '../dto/trainer.dto'
 import { validate } from 'class-validator'
-import { ErrorMiddleWare } from '../middlewares/error.middleware'
 
 const routerName = 'AuthController'
 
@@ -55,7 +54,7 @@ type TokenBody = {
 	client_secret: string
 }
 
-export type EncodedToken = {
+type EncodedToken = {
 	login: string
 	scope: string
 }
@@ -63,7 +62,6 @@ export default class AuthController {
 	public static async register(
 		req: Request,
 		res: Response,
-		next: ErrorMiddleWare
 	) {
 		// console.log(`[${routerName}] /register`, req.body)
 
@@ -106,7 +104,6 @@ export default class AuthController {
 	public static async getAuthorize(
 		req: Request,
 		res: Response,
-		next: ErrorMiddleWare
 	) {
 		const { client_id, redirect_uri, response_type, scope, state } =
 			req.query as AuthorizeQuery
@@ -116,6 +113,10 @@ export default class AuthController {
 		}
 		if (!redirect_uri) {
 			return res.status(400).send('Redirect URI is required')
+		}
+
+		if (response_type !== 'code') {
+			return res.status(400).send('Response type is not accepted')
 		}
 
 		if (!scope) {
@@ -150,7 +151,6 @@ export default class AuthController {
 	public static async postAuthorize(
 		req: Request,
 		res: Response,
-		next: ErrorMiddleWare
 	) {
 		const { redirect_uri, scope, state, login, password } =
 			req.body as AuthorizeBody
@@ -183,9 +183,8 @@ export default class AuthController {
 	public static async token(
 		req: Request,
 		res: Response,
-		next: ErrorMiddleWare
 	) {
-		const { grant_type, code, client_id, client_secret } = req.body as TokenBody
+		const { code, client_id, client_secret } = req.body as TokenBody
 
 		console.log('/token', req.body)
 

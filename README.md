@@ -32,10 +32,17 @@ $ docker-compose up -d db # start postgresql container
 $ yarn prisma:migrate # create database and seed
 ```
 
-# Running the app
+# Running the app 
 ```
 $ yarn dev // in development mode
 $ yarn prod // build the app and run in production mode
+```
+# Running the app in docker
+```
+$ docker-compose up -d  --build # start the app and postgresql 
+container
+yarn prisma:migrate # create database and seed
+yarn seed
 ```
 
 # Test
@@ -47,7 +54,7 @@ $ yarn test
 ```
 $ npx prisma init --datasource-provider postgresql
 $ npx prisma migrate dev --name init
-$ npx prisma db pull (not sure) 
+$ npx prisma db pull
 $ npx prisma generate
 
 ```
@@ -78,18 +85,13 @@ Récupérer les logs : GET /logs X
 - [ ] Add @private
 - [ ] Add @public
 - [ ] Add @roles
-- [ ] Export business in service 
-    - [ ] trainer
-    - [ ] pokemon
-    - [ ] trade
-    - [ ] log
 - [ ] Add logger
 
     
 
-    # Projet PC Pokémon 
+# Projet PC Pokémon 
 
-# Contexte 
+## Contexte 
 
 Ce projet a pour objectif de permettre à différents dresseurs d’enregistrer des informations sur leur Pokémon, de pouvoir les consulter et de pouvoir les échanger. 
 

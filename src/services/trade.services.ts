@@ -1,6 +1,7 @@
 import { Pokemon, Trade, TradesOnPokemons, TradeStatus } from '@prisma/client'
 import prisma from '../client/prisma.client'
-import { CreateTradeDto, UpdateTradeDto } from '../dto/trade.dto'
+import { ErrorCode } from '../constant'
+import { CreateTradeDto } from '../dto/trade.dto'
 import HttpException from '../exceptions/http.exception'
 
 export default class TradeService {
@@ -10,13 +11,15 @@ export default class TradeService {
 
 	public static async getTradeById(
 		id: number
-	): Promise<(Trade & { pokemons: TradesOnPokemons[] }) | null> {
-		return await prisma.trade.findUnique({
+	): Promise<Trade & { pokemons: TradesOnPokemons[] }> {
+		const trade = await prisma.trade.findUnique({
 			where: { id },
-			include: {
-				pokemons: true,
-			},
+			include: { pokemons: true },
 		})
+		if (!trade) {
+			throw new HttpException(404, ErrorCode.TRADE_NOT_FOUND)
+		}
+		return trade
 	}
 
 	public static async createTrade(
@@ -25,8 +28,18 @@ export default class TradeService {
 	): Promise<Trade> {
 		const { pokemons, recipientId } = trade
 
+		for (const { id: pokemonId } of pokemons) {
+			if (isNaN(pokemonId)) {
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
+			}
+		}
+
+		if (authorId === recipientId) {
+			throw new HttpException(400, ErrorCode.CANT_TRADE_WITH_YOURSELF)
+		}
+
 		if (!pokemons.length) {
-			throw new HttpException(400, 'No pokemon(s) to trade')
+			throw new HttpException(400, ErrorCode.INVALID_POKEMON_TO_TRADE)
 		}
 
 		// Check if the author has the pokemon(s) he wants to trade
@@ -53,20 +66,14 @@ export default class TradeService {
 			authorPokemons.length &&
 			!this.compareArrays(authorPokemons, pokemons)
 		) {
-			throw new HttpException(
-				400,
-				'Author does not have the pokemon(s) he wants to trade'
-			)
+			throw new HttpException(400, ErrorCode.INVALID_POKEMON_TO_TRADE)
 		}
 
 		if (
 			recipientPokemons.length &&
 			!this.compareArrays(recipientPokemons, pokemons)
 		) {
-			throw new HttpException(
-				400,
-				'Recipient does not have the pokemon(s) he wants to trade'
-			)
+			throw new HttpException(400, ErrorCode.INVALID_POKEMON_TO_TRADE)
 		}
 
 		return await prisma.trade.create({
@@ -80,38 +87,6 @@ export default class TradeService {
 					},
 				},
 			},
-		})
-	}
-
-	public static async updateTrade(
-		tradeId: number,
-		trainerId: number,
-		updateTrade: UpdateTradeDto
-	): Promise<Trade> {
-		const trade = await prisma.trade.findUnique({
-			where: { id: tradeId },
-		})
-
-		if (!trade) {
-			throw new HttpException(404, 'Trade not found')
-		}
-
-		if (trade.status !== 'PENDING') {
-			throw new HttpException(400, 'Only pending trade can be updated')
-		}
-
-		// Only the recipient can accept or reject a trade
-		// The trainer is the authir and the update status is not pending
-		if (trade.recipientId !== trainerId && updateTrade.status !== 'PENDING') {
-			throw new HttpException(
-				403,
-				'Only the recipient can accept or reject a trade'
-			)
-		}
-
-		return await prisma.trade.update({
-			where: { id: tradeId },
-			data: updateTrade,
 		})
 	}
 

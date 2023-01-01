@@ -1,9 +1,9 @@
-import express, { Application, Express, Response } from 'express'
+import express from 'express'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import dotenv from 'dotenv'
 
-import swaggerDocument from '../.swagger/openapi.json'
+import swaggerDocument from '../swagger/openapi.json'
 
 import auth from './routes/auth.routes'
 import log from './routes/log.routes'
@@ -12,7 +12,12 @@ import trade from './routes/trade.routes'
 import trainer from './routes/trainer.routes'
 import { loggerMiddleware } from './middlewares/log.middleware'
 import { isAuthenticated } from './middlewares/auth.middleware'
-import { errorMiddleware } from './middlewares/error.middleware'
+import {
+	ErrorMiddleWare,
+	errorMiddleware,
+} from './middlewares/error.middleware'
+import HttpException from './exceptions/http.exception'
+import { ErrorCode } from './constant'
 
 dotenv.config()
 
@@ -28,10 +33,9 @@ app.use('/trainers', isAuthenticated, trainer)
 app.use('/pokemons', isAuthenticated, pokemon)
 app.use('/trades', isAuthenticated, trade)
 app.use('/logs', isAuthenticated, log)
-app.get('*', (_, res: Response) => {
-	res.status(404).send('404 - Not Found')
+app.get('*', (_, __, next: ErrorMiddleWare) => {
+	next(new HttpException(404, ErrorCode.NOT_FOUND))
 })
 app.use(errorMiddleware)
-
 
 export default app

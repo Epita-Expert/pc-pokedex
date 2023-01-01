@@ -11,7 +11,7 @@
     },
     {
       "description": "Production server",
-      "url": "http://localhost:80"
+      "url": "http://localhost:8080"
     }
   ],
   "tags": [
@@ -331,7 +331,9 @@
             ]
           }
         ]
-      },
+      }
+    },
+    "/trades/{id}/{status}": {
       "put": {
         "tags": [
           "Trades"
@@ -347,17 +349,21 @@
             "schema": {
               "type": "number"
             }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTradeDto"
-              }
+          },
+          {
+            "name": "status",
+            "in": "path",
+            "description": "The trade's status",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACCEPTED",
+                "REFUSED"
+              ]
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -393,13 +399,10 @@
             "description": "Format of the export",
             "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "csv"
-                ]
-              }
+              "type": "string",
+              "enum": [
+                "csv"
+              ]
             }
           }
         ],

@@ -1,5 +1,6 @@
 import { TradeStatus } from '@prisma/client'
 import { Request, Response } from 'express'
+import { ErrorCode } from '../constant'
 import { CreateTradeDto } from '../dto/trade.dto'
 import HttpException from '../exceptions/http.exception'
 import { ErrorMiddleWare } from '../middlewares/error.middleware'
@@ -16,22 +17,9 @@ export default class TradeController {
 
 		try {
 			if (isNaN(authorId) || isNaN(recipientId)) {
-				throw new HttpException(400, 'Invalid author or recipient id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 
-			if (authorId === recipientId) {
-				throw new HttpException(400, 'You cannot trade with yourself')
-			}
-
-			if (pokemons.length < 1) {
-				throw new HttpException(400, 'No pokemon selected')
-			}
-
-			for (const { id: pokemonId } of pokemons) {
-				if (isNaN(pokemonId)) {
-					throw new HttpException(400, 'Invalid pokemon id')
-				}
-			}
 			const trade = await TradeService.createTrade(authorId, {
 				recipientId,
 				pokemons,
@@ -48,40 +36,28 @@ export default class TradeController {
 		next: ErrorMiddleWare
 	) {
 		const tradeId = parseInt(req.params.id)
+		const status = req.params.status as TradeStatus
 		const trainerId = parseInt(res.locals.user.id)
 
-		const status = req.query.status as TradeStatus
-
 		try {
-			if (isNaN(tradeId)) {
-				throw new HttpException(400, 'Invalid trade id')
-			}
-
-			if (isNaN(trainerId)) {
-				throw new HttpException(400, 'Invalid trainer id')
+			if (isNaN(tradeId) || isNaN(trainerId)) {
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 
 			if (status && !Object.values(TradeStatus).includes(status)) {
-				throw new HttpException(400, 'Invalid trade status')
+				throw new HttpException(400, ErrorCode.INVALID_TRADE_STATUS)
 			}
 			const trade = await TradeService.getTradeById(tradeId)
-
-			if (!trade) {
-				throw new HttpException(404, 'Trade not found')
-			}
-
-			if (trade.recipientId !== res.locals.user.id) {
-				throw new HttpException(
-					403,
-					'You cannot update the status of your own trade'
-				)
-			}
 
 			if (trade.status !== TradeStatus.PENDING) {
 				throw new HttpException(
 					400,
-					'You already accepted or declined this trade'
+					ErrorCode.TRADE_ALREADY_ACCEPTED_OR_DECLINED
 				)
+			}
+
+			if (trade.recipientId !== res.locals.user.id) {
+				throw new HttpException(403, ErrorCode.CANT_ACCEPT_YOUR_OWN_TRADE)
 			}
 
 			let tradeUpdated = null
@@ -105,13 +81,9 @@ export default class TradeController {
 
 		try {
 			if (isNaN(tradeId)) {
-				throw new HttpException(400, 'Invalid trade id')
+				throw new HttpException(400, ErrorCode.INVALID_ARGUMENT)
 			}
 			const trade = await TradeService.getTradeById(tradeId)
-
-			if (!trade) {
-				throw new HttpException(404, 'Trade not found')
-			}
 
 			return res.status(200).send(trade)
 		} catch (e) {
