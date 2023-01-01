@@ -1,0 +1,633 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PC Pokedex",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "description": "Development server",
+      "url": "http://localhost:3001"
+    },
+    {
+      "description": "Production server",
+      "url": "http://localhost:80"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Operation about authentication"
+    },
+    {
+      "name": "Trainers",
+      "description": "Operations about trainers"
+    },
+    {
+      "name": "Pokemons",
+      "description": "Operation about pokemons"
+    },
+    {
+      "name": "Trades",
+      "description": "Operation about trades"
+    },
+    {
+      "name": "Logs",
+      "description": "Operation about logs"
+    }
+  ],
+  "paths": {
+    "/trainers/{id}": {
+      "put": {
+        "tags": [
+          "Trainers"
+        ],
+        "summary": "Update a trainer",
+        "description": "Returns the trainer updated",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The trainer's id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTrainerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trainer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "write:trainer"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Trainers"
+        ],
+        "summary": "Delete a trainer",
+        "description": "Returns the trainer deleted",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The trainer's id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trainer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "delete:trainer"
+            ]
+          }
+        ]
+      }
+    },
+    "/pokemons": {
+      "get": {
+        "tags": [
+          "Pokemons"
+        ],
+        "summary": "Get all pokemons",
+        "description": "Returns all pokemons",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pokemons": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pokemon"
+                      }
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "read:pokemon"
+            ]
+          }
+        ]
+      }
+    },
+    "/pokemons/{id}": {
+      "put": {
+        "tags": [
+          "Pokemons"
+        ],
+        "summary": "Update a pokemon",
+        "description": "Returns the pokemon updated",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The pokemon's id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePokemonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pokemon"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "write:pokemon"
+            ]
+          }
+        ]
+      }
+    },
+    "/pokemon/{id}/me": {
+      "put": {
+        "tags": [
+          "Pokemons"
+        ],
+        "summary": "Update a pokemon",
+        "description": "Returns the pokemon updated",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The pokemon's id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePokemonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pokemon"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "write:pokemon"
+            ]
+          }
+        ]
+      }
+    },
+    "/trades": {
+      "post": {
+        "tags": [
+          "Trades"
+        ],
+        "summary": "Create a trade",
+        "description": "Returns the trade created",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTradeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trade"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "write:trade"
+            ]
+          }
+        ]
+      }
+    },
+    "/trades/{id}": {
+      "get": {
+        "tags": [
+          "Trades"
+        ],
+        "summary": "Get a trade",
+        "description": "Returns the trade",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The trade's id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trade"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "read:trade"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Trades"
+        ],
+        "summary": "Update a trade",
+        "description": "Returns the trade updated",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The trade's id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTradeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trade"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "write:trade"
+            ]
+          }
+        ]
+      }
+    },
+    "/logs": {
+      "get": {
+        "tags": [
+          "Logs"
+        ],
+        "summary": "Get all logs",
+        "description": "Return a csv file with all logs",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Format of the export",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "csv"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/csv": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "read:log"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Trainer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The trainer's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "The trainer's name"
+          },
+          "login": {
+            "type": "string",
+            "description": "The trainer's login"
+          },
+          "birth": {
+            "type": "string",
+            "format": "date",
+            "description": "The trainer's birth date"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ADMIN",
+                "TRAINER"
+              ]
+            },
+            "description": "The trainer's role"
+          }
+        }
+      },
+      "UpdateTrainerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The trainer's name"
+          },
+          "login": {
+            "type": "string",
+            "description": "The trainer's login"
+          },
+          "password": {
+            "type": "string",
+            "description": "The trainer's password"
+          },
+          "birth": {
+            "type": "string",
+            "format": "date",
+            "description": "The trainer's birth date"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ADMIN",
+                "TRAINER"
+              ]
+            },
+            "description": "The trainer's role"
+          }
+        }
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "description": "The user's email"
+          },
+          "password": {
+            "type": "string",
+            "description": "The user's password"
+          },
+          "name": {
+            "type": "string",
+            "description": "The user's name"
+          },
+          "birth": {
+            "type": "string",
+            "format": "date",
+            "description": "The trainer's birth date"
+          }
+        }
+      },
+      "Pokemon": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The pokemon's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "The pokemon's name"
+          },
+          "level": {
+            "type": "number",
+            "description": "The pokemon's level"
+          },
+          "trainer": {
+            "$ref": "#/components/schemas/Trainer"
+          }
+        }
+      },
+      "UpdatePokemonDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The pokemon's name"
+          },
+          "level": {
+            "type": "number",
+            "description": "The pokemon's level"
+          }
+        }
+      },
+      "CreateTradeDto": {
+        "type": "object",
+        "properties": {
+          "pokemons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "sent": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "recipientId": {
+            "type": "number",
+            "description": "The recipient's id",
+            "example": 2
+          }
+        }
+      },
+      "UpdateTradeDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REFUSED"
+            ]
+          }
+        }
+      },
+      "Trade": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The trade's id"
+          },
+          "pokemon": {
+            "schema": {
+              "$ref": "#/components/schemas/Pokemon"
+            }
+          },
+          "trainer": {
+            "schema": {
+              "$ref": "#/components/schemas/Trainer"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REFUSED"
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oAuth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "/auth/authorize",
+            "tokenUrl": "/auth/token",
+            "scopes": {
+              "write:me": "Update, delete my account",
+              "read:trainer": "Get trainer information",
+              "write:trainer": "Create, update, delete trainer",
+              "read:pokemon": "Get pokemon",
+              "write:pokemon": "Update pokemon",
+              "write:trade": "Create, accept, refuse trade",
+              "read:log": "Extact log as CSV file"
+            }
+          }
+        }
+      }
+    }
+  }
+}
