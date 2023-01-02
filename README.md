@@ -11,7 +11,7 @@ This application is using `jest` for testing.
 
 This application is using `docker` for containerization. You can use docker-compose to start the database container with `docker-compose up -d db` (env file is included in the repo).
 
-In development mode, this application is listening on port `3000`, while in production mode, it is listening on port `80`.
+In development mode, this application is listening on port `3000`, while in production mode, it is listening on port `8080`.
 
 Use `yarn prod` to build the app and run in production mode.
 
@@ -29,7 +29,8 @@ Use `yarn test:cov` to check the test coverage.
 $ nvm use # use node version v16.17.0
 $ yarn # install dependencies
 $ docker-compose up -d db # start postgresql container
-$ yarn prisma:migrate # create database and seed
+$ yarn prisma:migrate # create database
+$ yarn seed # seed the database
 ```
 
 # Running the app 
@@ -39,7 +40,7 @@ $ yarn prod // build the app and run in production mode
 ```
 # Running the app in docker
 ```
-$ docker-compose up -d  --build # start the app and postgresql 
+$ docker-compose up -d  --build # build the container, start the app and the db
 container
 yarn prisma:migrate # create database and seed
 yarn seed
@@ -86,8 +87,6 @@ Récupérer les logs : GET /logs X
 - [ ] Add @public
 - [ ] Add @roles
 - [ ] Add logger
-
-    
 
 # Projet PC Pokémon 
 
